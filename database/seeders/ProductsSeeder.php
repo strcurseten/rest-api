@@ -16,6 +16,10 @@ class ProductsSeeder extends Seeder
      */
     public function run()
     {
+
+        //\App\Models\Product::factory(100)->create();
+
+
         DB::table('products')->insert([
             'title' => 'Jacket',
             'description' => 'Given Jacket Description',
