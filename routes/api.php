@@ -19,10 +19,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/products', [ProductsController::class, 'getAllProducts']);
-Route::get('/products/{id}', [ProductsController::class, 'product']);
-Route::get('/products/search/{keyword}', [ProductsController::class, 'search']);
-Route::get('/products/categories', [ProductsController::class, 'categories']);
 
+Route::controller(ProductsController::class)->group(function() {
+    Route::get('/products', 'getAllProducts');
+    Route::get('/products/{id}', 'product');
+    Route::get('/products/search/{keyword}', 'search');
+    Route::get('/products/categories', 'categories');
+    Route::get('/products/categories/{category}', 'searchByCategory');
+    Route::post('/products', 'addProduct');
+    Route::put('/products/{id}', 'updateProduct');
+    Route::delete('/products/{id}', 'deleteProduct');
+});
 
 
