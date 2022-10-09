@@ -35,10 +35,10 @@ class ProductsController extends Controller
 
     public function search($keyword)
     {
-        $product = Product::find($keyword);
+        $product = Product::where('title', 'like', '%'.$keyword.'%')->get();
         if (is_null($product)) {
             return response()->json([
-                'error' => 'Product not found'
+                'error' => 'Sorry. No results found for this product.'
             ]);
         }
 
@@ -54,37 +54,85 @@ class ProductsController extends Controller
             ->get();
         
         return response()->json([
-            'data' => $categories
+            'info' => $categories
         ]);
     }
 
+    public function searchByCategory($category)
+    {
+        $product = Product::where('category', $category)->get();
+       
 
+        return response()->json([
+            'data' => $product,
+            'total' => $product->count()
+        ]);
+    }
 
-    public function products (Request $request) {
+    public function addProduct (Request $request) 
+    {
 
         try {
 
             $data = $request->json()->all();
-            $product = new Product();
-            $product->title = $data['title'];
-            $product->description = $data['description'];
-            $product->currency = $data['currency'];
-            $product->price = $data['price'];
-            $product->brand = $data['brand'];
-            $product->category = $data['category'];
-            $product->image = $data['image'];
-            $product->save();
+            $item = new Product();
+            $item->title = $data['title'];
+            $item->description = $data['description'];
+            $item->currency = $data['currency'];
+            $item->price = $data['price'];
+            $item->brand = $data['brand'];
+            $item->category = $data['category'];
+            $item->image = $data['image'];
+            $item->save();
 
         } catch (Exception $e) {
             Log::error($e->getMessage());
             return response()->json([
-                'error' => 'Unable to save product'
+                'error' => 'Unable to add product'
             ]);
         }
         
         return response()->json([
-            'data' => $product
+            'data' => $item
         ]);
 
     }
+
+    public function updateProduct(Request $request, $id)
+    {
+        try {
+            $data = $request->json()->all();
+            $item = Product::find($id);
+            if (!is_null($item)) {
+                $item->title = $data['title'];
+                $item->description = $data['description'];
+                $item->currency = $data['currency'];
+                $item->price = $data['price'];
+                $item->brand = $data['brand'];
+                $item->category = $data['category'];
+                $item->image = $data['image'];
+                $item->save();
+            } else {
+                throw new Exception('Product not found!');
+            }
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'error' => 'Sorry. Unable to update product details.'
+            ]);
+        }
+        
+        return response()->json([
+            'data' => $item
+        ]);
+    }
+
+    public function deleteProduct(Request $request, $id)
+    {
+        $item = Product::find($id);
+        $item->delete();
+        return response()->json(['message'=>'Product has been deleted successfully'], 200);
+
+    }
+
 }
